@@ -25,23 +25,31 @@ var formatSpecifiers = [
     "woff2-variations"
 ];
 
-var defaultAhemSrc = 'url("/fonts/Ahem.ttf") format("INSERT_FORMAT")';
+var defaultAhemSrc = 'url("/fonts/Ahem.ttf") format(INSERT_FORMAT)';
 
 function runTestOnFormatSpecifiers(formats, expectFail) {
-    for (var i = 0; i < formats.length; ++i) {
-        promise_test((testDetails) => {
-            var familyName = "load_ahem_" + i;
-            var ahemSrcFormat = defaultAhemSrc.replace("INSERT_FORMAT", testDetails.properties.format);
-            var fontFace = new FontFace(familyName, ahemSrcFormat);
-            if (!expectFail) {
-                return fontFace.load();
-            } else {
-                return promise_rejects_dom(testDetails, "NetworkError", fontFace.load());
-            }
-        }, (expectFail ? "Do not load" : "Load") + " Ahem with format " + formats[i], {
-            "format": formats[i]
-        });
+    var run = function(keyword) {
+        for (var i = 0; i < formats.length; ++i) {
+            promise_test((testDetails) => {
+                var familyName = "load_ahem_" + i;
+                var format = testDetails.properties.format
+                if (!keyword) {
+                    format = '"' + format + '"';
+                }
+                var ahemSrcFormat = defaultAhemSrc.replace("INSERT_FORMAT", format);
+                var fontFace = new FontFace(familyName, ahemSrcFormat);
+                if (!expectFail) {
+                    return fontFace.load();
+                } else {
+                    return promise_rejects_dom(testDetails, "NetworkError", fontFace.load());
+                }
+            }, (expectFail ? "Do not load" : "Load") + " Ahem with" + (keyword ? " keyword" : "") + " format " + formats[i], {
+                "format": formats[i]
+            });
+        }
     }
+    run(false);
+    run(true);
 }
 
 runTestOnFormatSpecifiers(formatSpecifiers, false);
