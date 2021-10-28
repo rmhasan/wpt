@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<title>SVGGraphicsElement.prototype.getBBox for elements with negative sizes</title>
+<script src="/resources/testharness.js"></script>
+<script src="/resources/testharnessreport.js"></script>
+<link rel="help" href="https://svgwg.org/svg2-draft/geometry.html#Sizing">
+<link rel="help" href="https://svgwg.org/svg2-draft/types.html#__svg__SVGGraphicsElement__getBBox">
+<link rel="help" href="https://svgwg.org/svg2-draft/coords.html#BoundingBoxes">
+<svg>
+  <rect id="rect1" x="1" y="2" width="-10" height="20"/>
+  <rect id="rect2" x="1" y="2" width="10" height="-20"/>
+  <circle id="circle" cx="1" cy="2" r="-10"/>
+  <ellipse id="ellipse1" cx="1" cy="12" rx="-5" ry="10"/>
+  <ellipse id="ellipse2" cx="6" cy="2" rx="5" ry="-10"/>
+  <image id="image1" x="1" y="2" width="-10" height="20" href="/images/green-100x50.png"/>
+  <image id="image2" x="1" y="2" width="10" height="-20" href="/images/green-100x50.png"/>
+  <image id="image3" x="1" y="2" width="-10" height="20"/>
+  <image id="image4" x="1" y="2" width="10" height="-20"/>
+  <foreignObject id="foreign1" x="1" y="2" width="-10" height="20"/>
+  <foreignObject id="foreign2" x="1" y="2" width="10" height="-20"/>
+</svg>
+<script>
+function testBBox(t, id, x, y, width, height) {
+  t.step(() => {
+    var bbox = document.getElementById(id).getBBox();
+    assert_equals(bbox.x, x, id + ': x');
+    assert_equals(bbox.y, y, id + ': y');
+    assert_equals(bbox.width, width, id + ': width');
+    assert_equals(bbox.height, height, id + ': height');
+  }, id);
+}
+
+async_test(t => {
+  onload = () => {
+    testBBox(t, 'rect1', 1, 2, 0, 20);
+    testBBox(t, 'rect2', 1, 2, 10, 0);
+    testBBox(t, 'circle', 1, 2, 0, 0);
+    testBBox(t, 'ellipse1', 1, 2, 0, 20);
+    testBBox(t, 'ellipse2', 1, 2, 10, 0);
+    testBBox(t, 'image1', 1, 2, 40, 20);
+    testBBox(t, 'image2', 1, 2, 10, 5);
+    testBBox(t, 'image3', 1, 2, 0, 20);
+    testBBox(t, 'image4', 1, 2, 10, 0);
+    testBBox(t, 'foreign1', 1, 2, 0, 20);
+    testBBox(t, 'foreign2', 1, 2, 10, 0);
+    t.done();
+  };
+});
+</script>
